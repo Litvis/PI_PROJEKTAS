@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import java.sql.Date;
 import java.util.Random;
 
-public class MathGameGUI extends Application {
+public class MathGameGUI extends Application implements GameObserver {
     private static final Random random = new Random();
     private static final int GAME_DURATION = 60; // in seconds (1 minute)
     private int num1, num2, correctAnswer;
@@ -24,9 +24,8 @@ public class MathGameGUI extends Application {
     private Label wrongAnswerLabel; // Label to display "Neteisingas atsakymas"
     private int totalPoints = 0; // Total points earned
     private boolean gameActive = true; // Flag to track game status
-
-    private String playerName;
-    private int playerAge;
+    String playerName;
+    int playerAge;
 
     public static void main(String[] args) {
         launch(args);
@@ -90,8 +89,12 @@ public class MathGameGUI extends Application {
 
     private void updateHighScores(String playerName, int totalPoints) {
         DuomenuBaze duomenuBaze = new DuomenuBaze();
+        // Pirmiausiai ištriname seną žaidėjo rezultatą
+        duomenuBaze.deletePlayerResult(playerName);
+        // Tada įterpiame naują rezultatą
         duomenuBaze.updateHighScores(playerName, totalPoints);
     }
+    
 
     private void showGameScreen(Stage primaryStage) {
 
@@ -175,14 +178,14 @@ public class MathGameGUI extends Application {
         }).start();
     }
 
-    private void generateNewQuestion() {
+    void generateNewQuestion() {
         num1 = random.nextInt(100);
         num2 = random.nextInt(100);
         correctAnswer = num1 + num2;
         problemLabel.setText("Kiek yra " + num1 + " + " + num2 + "?"); // Update text of existing label
     }
 
-    private int calculatePoints(long startTime) {
+    int calculatePoints(long startTime) {
         long endTime = System.currentTimeMillis();
         long timeTaken = (endTime - startTime) / 1000; // in seconds
         // Example: 1 second = 100 points
@@ -216,4 +219,10 @@ public class MathGameGUI extends Application {
     public int getTotalPoints() {
         return totalPoints;
     }
+
+	@Override
+	public void onNewQuestion(String questionText) {
+        problemLabel.setText(questionText);
+		
+	}
 }

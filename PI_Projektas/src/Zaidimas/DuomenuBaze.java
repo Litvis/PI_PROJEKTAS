@@ -7,6 +7,18 @@ import java.sql.SQLException;
 import java.sql.Date; // Import Date class
 
 public class DuomenuBaze {
+    private static DuomenuBaze instance;
+
+    DuomenuBaze() {
+        
+    }
+
+    public static DuomenuBaze getInstance() {
+        if (instance == null) {
+            instance = new DuomenuBaze();
+        }
+        return instance;
+    }
     private static final String DB_URL = "jdbc:mysql://localhost:3306/pi_projektas";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
@@ -65,6 +77,19 @@ public class DuomenuBaze {
                 } else {
                     System.out.println("Failed to insert question and answers!");
                 }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void deletePlayerResult(String playerName) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String sql = "DELETE FROM zaidejai WHERE Vardas = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerName);
+                statement.executeUpdate();
+                System.out.println("Player result deleted successfully!");
             }
         } catch (SQLException e) {
             e.printStackTrace();

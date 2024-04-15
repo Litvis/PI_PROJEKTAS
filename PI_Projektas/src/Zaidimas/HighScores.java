@@ -5,14 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class HighScores {
     private List<HighScoreEntry> highScoreEntries;
 
     public HighScores() {
-        this.highScoreEntries = new ArrayList<>();
+        this.highScoreEntries = new LinkedList<>();
     }
 
     // Method to fetch high scores from the database
@@ -52,6 +52,8 @@ public class HighScores {
             }
         }
     }
+    
+    
     
     // Method to calculate and set the average scores
     public void calculateAverageScores() {
@@ -95,7 +97,7 @@ public class HighScores {
         }
     }
 
- // Method to format high scores as a string
+    // Method to format high scores as a string
     public String formatHighScores() {
         StringBuilder sb = new StringBuilder();
         sb.append("High Scores:\n");
