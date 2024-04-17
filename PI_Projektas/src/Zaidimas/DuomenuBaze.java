@@ -4,14 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Date; // Import Date class
+import java.sql.Date;
 
 public class DuomenuBaze {
     private static DuomenuBaze instance;
 
-    DuomenuBaze() {
-        
-    }
+    DuomenuBaze() {}
 
     public static DuomenuBaze getInstance() {
         if (instance == null) {
@@ -19,18 +17,22 @@ public class DuomenuBaze {
         }
         return instance;
     }
+
     private static final String DB_URL = "jdbc:mysql://localhost:3306/pi_projektas";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
 
-    // Method to insert player data into the database
+    // Bendra duomenų bazės jungtis
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    }
+
     public void insertPlayerData(String playerName, int playerAge) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (Connection connection = getConnection()) {
             String sql = "INSERT INTO zaidejai (Vardas, Amzius) VALUES (?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, playerName);
                 statement.setInt(2, playerAge);
-
                 int rowsInserted = statement.executeUpdate();
                 if (rowsInserted > 0) {
                     System.out.println("Player data inserted successfully!");
@@ -43,14 +45,12 @@ public class DuomenuBaze {
         }
     }
 
-    // Method to insert result and date into the database
     public void insertResultAndDate(int result, Date date) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (Connection connection = getConnection()) {
             String sql = "INSERT INTO rezultatai (Rezultatas, Data) VALUES (?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, result);
                 statement.setDate(2, date);
-
                 int rowsInserted = statement.executeUpdate();
                 if (rowsInserted > 0) {
                     System.out.println("Result and date inserted successfully!");
@@ -64,13 +64,12 @@ public class DuomenuBaze {
     }
     
     public void insertQuestionAndAnswer(String question, int correctAnswer, int userAnswer) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (Connection connection = getConnection()) {
             String sql = "INSERT INTO klausimai (Klausimas, Teisingas_ATS, zaidejo_ats) VALUES (?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, question);
                 statement.setInt(2, correctAnswer);
                 statement.setInt(3, userAnswer);
-
                 int rowsInserted = statement.executeUpdate();
                 if (rowsInserted > 0) {
                     System.out.println("Question and answers inserted successfully!");
@@ -84,7 +83,7 @@ public class DuomenuBaze {
     }
     
     public void deletePlayerResult(String playerName) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (Connection connection = getConnection()) {
             String sql = "DELETE FROM zaidejai WHERE Vardas = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, playerName);
@@ -97,8 +96,7 @@ public class DuomenuBaze {
     }
     
     public void updateHighScores(String playerName, int totalPoints) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            // Update high score
+        try (Connection connection = getConnection()) {
             String updateHighScoreSQL = "INSERT INTO HighScores (Vardas, Highscore) "
                                       + "VALUES (?, ?) "
                                       + "ON DUPLICATE KEY UPDATE HighScore = GREATEST(Highscore, ?)";
@@ -109,7 +107,6 @@ public class DuomenuBaze {
                 updateHighScoreStatement.executeUpdate();
             }
 
-            // Update average score
             String updateAverageScoreSQL = "UPDATE Highscores SET AverageScore = "
                                          + "(SELECT AVG(Rezultatas) FROM rezultatai WHERE Vardas = ?) "
                                          + "WHERE Vardas = ?";
